@@ -11,7 +11,7 @@
 #define WATER_THRESHOLD 10
 
 int half_seconds = 0;
-const int check_after_seconds = 2;
+const int check_after_seconds = 10;
 
 SoftwareSerial espSerial(7, 6);
 
@@ -25,7 +25,17 @@ ISR(TIMER1_OVF_vect)
   if (half_seconds * 2 == check_after_seconds)
   {
     half_seconds = 0;
-    uint8_t buffer[1] = {analogRead(A0)};
+    uint8_t arbitraryTeller = 1;
+    if (analogRead(A0) > WATER_THRESHOLD)
+    {
+      arbitraryTeller = 0;
+      digitalWrite(13, HIGH);
+    }
+    else
+    {
+      digitalWrite(13, LOW);
+    }
+    uint8_t buffer[1] = {arbitraryTeller};
     char str[3];
     itoa(buffer[0], str, 10);
     sendDebug("Water Sensor: ");
@@ -42,6 +52,7 @@ void setup()
   timer_setup();
 
   pinMode(A0, INPUT);
+  pinMode(13, OUTPUT);
 }
 
 void loop()
